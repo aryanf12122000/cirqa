@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cirqa</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cirqa">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0d0c" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>header.top{padding-top:calc(20px + env(safe-area-inset-top,0px))}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* VOICE everyday, a personal health app
+   IDEA a modern phone app with a readiness dial and a living 24h strip
+   PICTURE readiness dial + scrubbable day timeline (HR / stress / battery)
+   COLOUR white or near-black ground, chartreuse field, coral accent, deep green support
+   TYPE Archivo 800 + Inter
+   LAYOUT single column app, bottom tab bar; wider screens get two columns */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b0d0c);--ink:light-dark(#111412,#eef1ee);--mut:light-dark(#5d655f,#9aa39c);--line:light-dark(#e5e8e5,#232825);--card:light-dark(#f4f6f3,#151917);--lime:light-dark(#c8f031,#c8f031);--limeInk:#121a05;--coral:light-dark(#f2482a,#ff6a4d);--green:light-dark(#0f4a35,#4fd39b);--violet:light-dark(#6b4ce6,#9b84ff);--blue:light-dark(#1e6fd9,#5aa2ff)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(4vw,16px,env(safe-area-inset-left,0px));padding-right:max(4vw,16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,.num{font-family:Archivo,system-ui,sans-serif;letter-spacing:-.02em;line-height:1.05;margin:0}
+h1{font-size:clamp(30px,6vw,44px);font-weight:800}
+h2{font-size:22px;font-weight:700;margin:0 0 10px}
+h3{font-size:16px;font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-block:20px 14px}
+.top p{margin:4px 0 0;color:var(--mut);font-size:14px}
+.sync{font-size:13px;color:var(--mut);text-align:right;white-space:nowrap}
+.sync b{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px}
+.grid{display:grid;gap:14px}
+@media(min-width:860px){.g2{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+.card{background:var(--card);border-radius:22px;padding:18px}
+.hero{background:var(--lime);color:var(--limeInk);border-radius:28px;padding:20px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.hero .lbl{font-size:14px;font-weight:600;opacity:.75}
+.hero .big{font-size:clamp(56px,14vw,84px);font-weight:800}
+.hero p{margin:6px 0 0;font-size:15px}
+.dial{width:150px;height:150px}
+@media(max-width:420px){.dial{width:118px;height:118px}}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}
+.chip{background:var(--card);border-radius:18px;padding:12px 14px;border:0;color:inherit;text-align:left;font:inherit;cursor:pointer}
+.chip:active{transform:scale(.97)}
+.chip small{display:block;color:var(--mut);font-size:13px}
+.chip .num{font-size:26px;font-weight:700;margin-top:4px}
+.chip i{font-style:normal;font-size:13px;color:var(--mut);font-family:Inter}
+.chip .d{font-size:13px;font-weight:600}
+.up{color:var(--green)}.dn{color:var(--coral)}
+.seg{display:flex;gap:6px;background:var(--bg);border-radius:999px;padding:4px;width:max-content;max-width:100%;flex-wrap:wrap}
+.seg button{border:0;background:none;color:var(--mut);font:600 14px Inter;padding:8px 14px;border-radius:999px;cursor:pointer;min-height:36px}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.fig{position:relative;height:210px;touch-action:pan-y}
+.fig.s{height:170px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+svg text{font:13px Inter;fill:var(--mut);paint-order:stroke;stroke:var(--card);stroke-width:4px}
+.readout{font-size:14px;color:var(--mut);min-height:21px}
+.readout b{color:var(--ink);font-size:18px;font-family:Archivo}
+.ins{display:grid;gap:10px}
+.in{display:grid;grid-template-columns:10px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.in:first-child{border-top:0}
+.in span{width:10px;height:10px;border-radius:50%;margin-top:7px}
+.in p{margin:2px 0 0;color:var(--mut);font-size:15px}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:70px minmax(0,1fr) 64px;gap:10px;align-items:center;font-size:14px}
+.bar .t{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar .t div{height:100%;border-radius:6px}
+.bar b{text-align:right;white-space:nowrap;font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:12px}
+.kv div{font-size:13px;color:var(--mut)}
+.kv b{display:block;font:700 22px Archivo;color:var(--ink)}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px max(8px,env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);font:600 11px Inter;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;min-height:52px;cursor:pointer}
+.tabs svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-pressed=true]{color:var(--ink)}
+.tabs button[aria-pressed=true] svg{stroke:var(--coral)}
+.view{display:grid;gap:14px;padding-bottom:20px}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:600 15px Inter;padding:10px 14px;border-radius:14px;cursor:pointer;min-height:44px}
+.tag[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.moods{display:flex;gap:8px}
+.moods button{flex:1;min-height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:700 18px Archivo;cursor:pointer}
+.moods button[aria-pressed=true]{background:var(--lime);color:var(--limeInk);border-color:var(--lime)}
+.cat{display:grid;gap:14px}
+@media(min-width:860px){.cat{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cat ul{margin:8px 0 0;padding:0;list-style:none}
+.cat li{padding:9px 0;border-top:1px solid var(--line);font-size:15px}
+.cat li small{display:block;color:var(--mut);font-size:13px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:2px}
+.p1{background:color-mix(in srgb,var(--blue) 18%,transparent);color:var(--blue)}
+.p2{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.p3{background:color-mix(in srgb,var(--coral) 18%,transparent);color:var(--coral)}
+.p4{background:color-mix(in srgb,var(--violet) 18%,transparent);color:var(--violet)}
+.note{font-size:13px;color:var(--mut);margin:0}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div><h1 id="ttl">Today</h1><p id="sub">Thursday, 26 November</p></div>
+    <div class="sync"><b></b>Sample data<br>Cirqa band</div>
+  </header>
+
+  <section class="view" data-v="today">
+    <div class="grid g2">
+      <div class="hero">
+        <svg class="dial" viewBox="0 0 150 150" id="dial"></svg>
+        <div><div class="lbl">Readiness</div><div class="big num" id="rdy">0</div><p id="rdyTxt"></p></div>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="card">
+      <div class="row"><h2 style="margin:0">Your day, minute by minute</h2>
+        <div class="seg" id="daySeg"><button data-k="hr" aria-pressed="true">Heart rate</button><button data-k="stress">Stress</button><button data-k="bb">Body Battery</button></div></div>
+      <div class="readout" id="dayRead">Drag across the chart</div>
+      <div class="fig" id="dayFig"><svg></svg></div>
+    </div>
+    <div class="card"><h2>What your data says</h2><div class="ins" id="ins"></div></div>
+  </section>
+
+  <section class="view" data-v="sleep" hidden>
+    <div class="grid g2">
+      <div class="card"><div class="row"><h2 style="margin:0">Last night</h2><span class="readout" id="slpSum"></span></div>
+        <div class="fig s" id="hypFig"><svg></svg></div><div class="bars" id="stageBars" style="margin-top:12px"></div></div>
+      <div class="card"><h2>Sleep score breakdown</h2><div class="bars" id="scoreBars"></div>
+        <div class="kv" id="slpKv"></div></div>
+    </div>
+    <div class="card"><h2>Bedtime consistency, 14 nights</h2><p class="note">Each bar runs from falling asleep to waking. Steadier times mean better recovery.</p><div class="fig" id="consFig"><svg></svg></div></div>
+  </section>
+
+  <section class="view" data-v="heart" hidden>
+    <div class="grid g2">
+      <div class="card"><h2>Overnight HRV vs your normal range</h2><div class="readout" id="hrvRead"></div><div class="fig" id="hrvFig"><svg></svg></div></div>
+      <div class="card"><h2>Resting heart rate, 30 days</h2><div class="readout" id="rhrRead"></div><div class="fig" id="rhrFig"><svg></svg></div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h2>Time in heart rate zones today</h2><div class="bars" id="zones"></div><p class="note" style="margin-top:10px" id="zNote"></p></div>
+      <div class="card"><h2>Illness early warning</h2><div class="bars" id="ill"></div><p class="note" style="margin-top:10px">Flags when resting HR, breathing rate and HRV all move the wrong way at once. A heads-up, not a diagnosis.</p></div>
+    </div>
+  </section>
+
+  <section class="view" data-v="move" hidden>
+    <div class="grid g2">
+      <div class="card"><h2>Steps, 14 days</h2><div class="readout" id="stepRead"></div><div class="fig" id="stepFig"><svg></svg></div></div>
+      <div class="card"><h2>Training load balance</h2><div class="kv" id="loadKv"></div><div class="fig s" id="loadFig" style="margin-top:10px"><svg></svg></div><p class="note">Short-term load vs your 4-week base. 0.8–1.3 is the safe zone for building fitness.</p></div>
+    </div>
+    <div class="card"><h2>Fitness estimates</h2><div class="kv" id="fitKv"></div></div>
+  </section>
+
+  <section class="view" data-v="log" hidden>
+    <div class="grid g2">
+      <div class="card"><h2>How do you feel?</h2><div class="moods" id="moods"></div>
+        <h2 style="margin-top:18px">Tag today</h2><div class="tags" id="tags"></div>
+        <h2 style="margin-top:18px">Water</h2><div class="row"><div class="num" style="font-size:30px" id="water">0 ml</div><div class="seg"><button id="wMinus">−250</button><button id="wPlus" aria-pressed="true">+250 ml</button></div></div>
+        <p class="note">Saved on this device.</p></div>
+      <div class="card"><h2>What affects you, from 30 days</h2><p class="note">Compares nights after each tag with nights without it.</p><div class="ins" id="corr" style="margin-top:8px"></div></div>
+    </div>
+  </section>
+
+  <section class="view" data-v="all" hidden>
+    <p class="note"><span class="pill p1">Sensor</span> measured directly <span class="pill p2">Garmin</span> computed by Garmin <span class="pill p3">New</span> we calculate it <span class="pill p4">You</span> you log it</p>
+    <div class="cat" id="cat"></div>
+  </section>
+</div>
+
+<nav class="tabs" id="tabs"></nav>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let seed=42;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+const nrm=()=>{let u=0;for(let i=0;i<6;i++)u+=rnd();return u-3};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
+const sd=a=>{const m=mean(a);return Math.sqrt(mean(a.map(x=>(x-m)**2)))};
+
+/* ---- sample history: 30 nights/days ---- */
+const N=30,today=new Date(2026,10,26);
+const days=[];
+for(let i=0;i<N;i++){
+  const alc=rnd()<.2,caf=rnd()<.28,late=rnd()<.25,wk=rnd()<.5;
+  const hrv=Math.round(64+nrm()*4-(alc?13:0)-(late?5:0)-(caf?4:0));
+  const rhr=Math.round(53+nrm()*1.3+(alc?4:0)+(late?1:0));
+  const bed=23.1+nrm()*.35+(late?1.2:0), dur=7.4+nrm()*.45-(late?.8:0)-(alc?.3:0);
+  const deep=clamp(.17+nrm()*.02-(alc?.05:0),.06,.28),rem=clamp(.22+nrm()*.02-(alc?.04:0),.1,.3);
+  const score=Math.round(clamp(58+dur*3.2+deep*60-(alc?7:0)+nrm()*3,40,98));
+  const steps=Math.round(clamp(9000+nrm()*2600+(wk?2500:0),2500,19000));
+  const load=wk?Math.round(90+rnd()*120):Math.round(10+rnd()*30);
+  const resp=+(14.2+nrm()*.3+(alc?.5:0)).toFixed(1);
+  const spo2=Math.round(clamp(96+nrm()*.7,92,99));
+  const d=new Date(today);d.setDate(today.getDate()-(N-1-i));
+  days.push({d,alc,caf,late,wk,hrv,rhr,bed,dur,deep,rem,score,steps,load,resp,spo2,mood:clamp(Math.round(3.6+nrm()*.6-(alc?.6:0)),1,5)});
+}
+const T=days[N-1];
+Object.assign(T,{alc:false,late:false,hrv:69,rhr:52,score:84,dur:7.6,deep:.19,rem:.23,bed:23.0});
+const base=days.slice(0,N-1);
+const hrvM=mean(base.map(d=>d.hrv)),hrvS=sd(base.map(d=>d.hrv));
+const rhrM=mean(base.map(d=>d.rhr)),rhrS=sd(base.map(d=>d.rhr));
+const acute=mean(days.slice(-7).map(d=>d.load)),chronic=mean(days.map(d=>d.load)),acwr=acute/chronic;
+const zH=(T.hrv-hrvM)/hrvS,zR=(T.rhr-rhrM)/rhrS;
+const readiness=Math.round(clamp(62+zH*9-zR*6+(T.score-75)*.6-Math.max(0,acwr-1.3)*30,1,100));
+
+/* ---- today: 5-minute samples up to 20:30 ---- */
+const day=[];let bb=31;
+for(let m=0;m<=20.5*60;m+=5){
+  const h=m/60,sleep=h<6.85,work=h>=17.5&&h<18.35,walk=(h>=8.2&&h<8.6)||(h>=12.6&&h<13);
+  let hr=sleep?50+3*Math.sin(h*2)+nrm()*1.5:68+nrm()*4+(h>9&&h<12?6:0);
+  if(walk)hr=96+nrm()*5;
+  if(work)hr=128+28*Math.sin(Math.PI*(h-17.5)/.85)+nrm()*4;
+  let st=sleep?8+nrm()*3:28+18*Math.sin(h/1.7)**2+nrm()*8+(h>10&&h<11.5?25:0);
+  if(work||walk)st=0;
+  bb+=sleep?1.05:work?-1.4:-(.12+st/320);
+  bb=clamp(bb,5,100);
+  day.push({m,hr:Math.round(hr),st:Math.round(clamp(st,0,100)),bb:Math.round(bb),act:work||walk});
+}
+
+/* ---- last-night hypnogram ---- */
+const hyp=[];{let t=T.bed;const end=T.bed+T.dur;const pat=[['light',.35],['deep',.55],['light',.25],['rem',.2],['light',.3],['deep',.4],['light',.3],['rem',.35],['awake',.05],['light',.4],['deep',.2],['light',.3],['rem',.45],['light',.35],['awake',.06],['rem',.5],['light',.4]];
+let i=0;while(t<end){const[s,dd]=pat[i%pat.length];const dur=Math.min(dd*(.85+rnd()*.3),end-t);hyp.push({s,a:t,b:t+dur});t+=dur;i++}}
+const stTot={awake:0,light:0,deep:0,rem:0};hyp.forEach(h=>stTot[h.s]+=h.b-h.a);
+
+const fmtH=h=>{h=((h%24)+24)%24;const H=Math.floor(h),M=Math.round((h-H)*60)%60;return `${H}:${String(M).padStart(2,'0')}`};
+const fmtD=h=>`${Math.floor(h)}h ${Math.round((h%1)*60)}m`;
+const dayName=d=>d.toLocaleDateString('en',{weekday:'short'}).slice(0,2);
+
+/* ---- svg helpers ---- */
+function chart(el,draw){const s=el.querySelector('svg');const f=()=>{const W=el.clientWidth,H=el.clientHeight;if(W)s.innerHTML=draw(W,H)};const ro=new ResizeObserver(f);ro.observe(el);charts.push(f);return f}
+const charts=[];
+const line=(pts)=>pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+
+/* ---- dial ---- */
+function dial(){
+  const r=[{v:readiness,r:64,c:'#121a05',w:12},{v:T.score,r:47,c:css('--coral')||'#f2482a',w:10},{v:Math.min(100,acute/2),r:32,c:'#0f4a35',w:10}];
+  $('#dial').innerHTML=r.map(o=>{const C=2*Math.PI*o.r;return `<circle cx="75" cy="75" r="${o.r}" fill="none" stroke="#121a05" stroke-opacity=".12" stroke-width="${o.w}"/><circle cx="75" cy="75" r="${o.r}" fill="none" stroke="${o.c}" stroke-width="${o.w}" stroke-linecap="round" stroke-dasharray="${C*o.v/100} ${C}" transform="rotate(-90 75 75)"><animate attributeName="stroke-dasharray" from="0 ${C}" to="${C*o.v/100} ${C}" dur=".9s"/></circle>`}).join('');
+  $('#rdy').textContent=readiness;
+  $('#rdyTxt').textContent=readiness>=75?'Primed. HRV is above your normal and you slept well — a good day to push hard.':readiness>=55?'Steady. Train at a moderate effort.':'Take it easy. Your body is still recovering.';
+}
+
+/* ---- chips ---- */
+const last=day[day.length-1];
+const chipData=[
+ ['Body Battery',last.bb,'',`peaked ${Math.max(...day.map(d=>d.bb))}`,'bb'],
+ ['Stress avg',Math.round(mean(day.filter(d=>d.m>410&&!d.act).map(d=>d.st))),'','low–medium','stress'],
+ ['Steps',T.steps.toLocaleString(),'',`${Math.round(T.steps/100)}% of goal`,'move'],
+ ['Resting HR',T.rhr,'bpm',`${(T.rhr-rhrM).toFixed(1)} vs norm`,'heart'],
+ ['HRV',T.hrv,'ms',`+${(T.hrv-hrvM).toFixed(0)} vs norm`,'heart'],
+ ['Sleep',fmtD(T.dur),'',`score ${T.score}`,'sleep'],
+ ['Blood oxygen',T.spo2,'%','overnight avg','heart'],
+ ['Breathing',T.resp,'/min','overnight avg','heart'],
+];
+$('#chips').innerHTML=chipData.map(c=>`<button class="chip" data-go="${c[4]}"><small>${c[0]}</small><div class="num">${c[1]} <i>${c[2]}</i></div><span class="d ${/^-|^\+/.test(c[3])?(c[3][0]==='+'?'up':(c[0]==='Resting HR'?'up':'dn')):''}">${c[3]}</span></button>`).join('');
+$('#chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const k=b.dataset.go;if(k==='bb'||k==='stress'){setDay(k);$('#dayFig').scrollIntoView({behavior:'smooth',block:'center'})}else go(k)};
+
+/* ---- day chart ---- */
+let dk='hr',hover=null;
+const dkCfg={hr:{f:'hr',lo:40,hi:170,c:'--coral',u:'bpm',n:'Heart rate'},stress:{f:'st',lo:0,hi:100,c:'--violet',u:'',n:'Stress'},bb:{f:'bb',lo:0,hi:100,c:'--green',u:'',n:'Body Battery'}};
+const drawDay=chart($('#dayFig'),(W,H)=>{
+  const cfg=dkCfg[dk],L=30,R=8,Tp=10,B=24,x=m=>L+(W-L-R)*m/1440,y=v=>Tp+(H-Tp-B)*(1-(v-cfg.lo)/(cfg.hi-cfg.lo));
+  const col=css(cfg.c);let o='';
+  o+=`<rect x="${x(0)}" y="${Tp}" width="${x(411)-x(0)}" height="${H-Tp-B}" fill="${css('--blue')}" opacity=".08"/><text x="${x(205)}" y="${Tp+16}" text-anchor="middle">asleep</text>`;
+  [cfg.lo,(cfg.lo+cfg.hi)/2,cfg.hi].forEach(v=>o+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--line')}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${Math.round(v)}</text>`);
+  const step=W<520?6:3;for(let h=0;h<=24;h+=step)o+=`<text x="${x(h*60)}" y="${H-6}" text-anchor="middle">${h===24?'':h+':00'}</text>`;
+  const pts=day.map(d=>[x(d.m),y(d[cfg.f])]);
+  if(dk==='stress'){const bw=Math.max(1,(W-L-R)/288-.6);o+=day.map(d=>`<rect x="${x(d.m)}" y="${y(d.st)}" width="${bw}" height="${y(0)-y(d.st)}" fill="${d.act?css('--line'):col}" opacity="${d.m<411?.45:1}"/>`).join('')}
+  else{o+=`<path d="${line(pts)} L${pts.at(-1)[0]} ${y(cfg.lo)} L${pts[0][0]} ${y(cfg.lo)}Z" fill="${col}" opacity=".14"/><path d="${line(pts)}" fill="none" stroke="${col}" stroke-width="2.2" stroke-linejoin="round"/>`}
+  if(dk==='hr'){o+=`<text x="${x(1065)}" y="${y(165)}" text-anchor="middle" style="fill:var(--ink)">Workout, 51 min</text>`}
+  if(hover!=null){const d=day[hover];o+=`<line x1="${x(d.m)}" x2="${x(d.m)}" y1="${Tp}" y2="${H-B}" stroke="${css('--ink')}" stroke-width="1"/><circle cx="${x(d.m)}" cy="${y(d[cfg.f])}" r="5" fill="${col}" stroke="${css('--card')}" stroke-width="2"/>`}
+  return o;
+});
+function setDay(k){dk=k;hover=null;$('#dayRead').innerHTML='Drag across the chart';document.querySelectorAll('#daySeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));drawDay()}
+$('#daySeg').onclick=e=>{const b=e.target.closest('button');if(b)setDay(b.dataset.k)};
+const scrub=e=>{const r=$('#dayFig').getBoundingClientRect(),W=r.width,m=clamp((e.clientX-r.left-30)/(W-38)*1440,0,1440);hover=clamp(Math.round(m/5),0,day.length-1);const d=day[hover],c=dkCfg[dk];$('#dayRead').innerHTML=`${fmtH(d.m/60)} · <b>${d[c.f]}</b> ${c.u} ${esc(c.n.toLowerCase())}${d.act?' · active':''}`;drawDay()};
+$('#dayFig').addEventListener('pointermove',scrub);$('#dayFig').addEventListener('pointerdown',scrub);
+
+/* ---- insights (derived) ---- */
+const alcN=base.filter(d=>d.alc),noA=base.filter(d=>!d.alc);
+const debt=days.slice(-7).reduce((s,d)=>s+Math.max(0,8-d.dur),0);
+const ins=[
+ ['--green','HRV is in your top range',`${T.hrv} ms is ${zH.toFixed(1)} standard deviations above your 30-day normal of ${Math.round(hrvM)} ms. Your nervous system is well recovered.`],
+ ['--coral','Workout peaked at '+Math.max(...day.map(d=>d.hr))+' bpm',`About ${day.filter(d=>d.hr>=133).length*5} minutes above zone 3. Heart rate fell 31 bpm in the first minute after stopping, which is a strong recovery sign.`],
+ ['--violet','Stress spiked 10–11:30',`Your highest stretch today, average ${Math.round(mean(day.filter(d=>d.m>=600&&d.m<690).map(d=>d.st)))}. The same window has been your peak on 4 of the last 7 weekdays.`],
+ ['--blue','Sleep debt: '+fmtD(debt),`Over the last 7 nights against an 8-hour target. One early night would clear most of it.`],
+];
+$('#ins').innerHTML=ins.map(i=>`<div class="in"><span style="background:var(${i[0]})"></span><div><h3>${esc(i[1])}</h3><p>${esc(i[2])}</p></div></div>`).join('');
+
+/* ---- sleep ---- */
+const stCol={awake:'--coral',rem:'--violet',light:'--blue',deep:'--green'},stY={awake:0,rem:1,light:2,deep:3};
+$('#slpSum').textContent=`${fmtH(T.bed)} – ${fmtH(T.bed+T.dur)} · ${fmtD(T.dur)}`;
+chart($('#hypFig'),(W,H)=>{const L=52,B=22,x=t=>L+(W-L-6)*(t-T.bed)/T.dur,rh=(H-B)/4;let o='';
+  Object.keys(stY).forEach(s=>o+=`<text x="0" y="${stY[s]*rh+rh/2+4}">${s[0].toUpperCase()+s.slice(1)}</text>`);
+  o+=hyp.map(h=>`<rect x="${x(h.a)}" y="${stY[h.s]*rh+4}" width="${Math.max(1,x(h.b)-x(h.a))}" height="${rh-8}" rx="3" fill="${css(stCol[h.s])}"/>`).join('');
+  for(let t=Math.ceil(T.bed);t<T.bed+T.dur;t+=W<520?2:1)o+=`<text x="${x(t)}" y="${H-4}" text-anchor="middle">${fmtH(t)}</text>`;return o});
+const tot=T.dur;$('#stageBars').innerHTML=['deep','rem','light','awake'].map(s=>`<div class="bar"><span>${s==='rem'?'REM':s[0].toUpperCase()+s.slice(1)}</span><div class="t"><div style="width:${stTot[s]/tot*100*2}%;background:var(${stCol[s]})"></div></div><b>${fmtD(stTot[s])}</b></div>`).join('');
+const sb=[['Duration',88],['Deep sleep',82],['REM',79],['Restfulness',74],['Timing',91],['Recovery (HRV)',90]];
+$('#scoreBars').innerHTML=sb.map(s=>`<div class="bar"><span style="grid-column:1/3">${s[0]}</span><b>${s[1]}</b><div class="t" style="grid-column:1/-1"><div style="width:${s[1]}%;background:var(--ink)"></div></div></div>`).join('');
+const bedSd=sd(days.slice(-14).map(d=>d.bed))*60;
+$('#slpKv').innerHTML=[['Sleep score',T.score],['Sleep debt (7d)',fmtD(debt)],['Bedtime spread',`±${Math.round(bedSd)} min`],['Overnight SpO₂',T.spo2+'%'],['Breathing',T.resp+'/min'],['Chronotype','Intermediate']].map(k=>`<div>${k[0]}<b>${k[1]}</b></div>`).join('');
+chart($('#consFig'),(W,H)=>{const d14=days.slice(-14),L=40,B=22,yv=h=>10+(H-10-B)*(h-21.5)/(9.5),bw=(W-L)/14;let o='';
+  [22,24,26,28,30].forEach(h=>o+=`<line x1="${L}" x2="${W}" y1="${yv(h)}" y2="${yv(h)}" stroke="${css('--line')}"/><text x="${L-6}" y="${yv(h)+4}" text-anchor="end">${fmtH(h)}</text>`);
+  o+=d14.map((d,i)=>`<rect x="${L+i*bw+bw*.2}" y="${yv(d.bed)}" width="${bw*.6}" height="${yv(d.bed+d.dur)-yv(d.bed)}" rx="${Math.min(6,bw*.3)}" fill="${css(d.late?'--coral':'--blue')}"/>`+(W>=520||i%2==0?`<text x="${L+i*bw+bw/2}" y="${H-4}" text-anchor="middle">${dayName(d.d)}</text>`:'')).join('');return o});
+
+/* ---- heart ---- */
+function trend(el,key,col,band,unit){chart(el,(W,H)=>{const vs=days.map(d=>d[key]),lo=Math.min(...vs,band[0])-3,hi=Math.max(...vs,band[1])+3,L=30,B=22,x=i=>L+(W-L-34)*i/(N-1),y=v=>8+(H-8-B)*(1-(v-lo)/(hi-lo));let o=`<rect x="${L}" width="${W-L-34}" y="${y(band[1])}" height="${y(band[0])-y(band[1])}" fill="${css('--green')}" opacity=".12"/><text x="${L+6}" y="${y(band[1])+16}">your normal</text>`;
+  [lo+3,hi-3].forEach(v=>o+=`<text x="${L-6}" y="${y(v)+4}" text-anchor="end">${Math.round(v)}</text>`);
+  [0,14,29].forEach(i=>o+=`<text x="${x(i)}" y="${H-4}" text-anchor="${i?i===29?'end':'middle':'start'}">${days[i].d.toLocaleDateString('en',{day:'numeric',month:'short'})}</text>`);
+  o+=`<path d="${line(vs.map((v,i)=>[x(i),y(v)]))}" fill="none" stroke="${css(col)}" stroke-width="2.2"/>`+vs.map((v,i)=>days[i].alc?`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${css('--coral')}"/>`:'').join('')+`<circle cx="${x(N-1)}" cy="${y(vs[N-1])}" r="5" fill="${css(col)}"/><text x="${x(N-1)+8}" y="${y(vs[N-1])+4}" style="fill:var(--ink);font-weight:600">${vs[N-1]}</text>`;return o})}
+trend($('#hrvFig'),'hrv','--violet',[hrvM-hrvS,hrvM+hrvS]);
+trend($('#rhrFig'),'rhr','--coral',[rhrM-rhrS,rhrM+rhrS]);
+$('#hrvRead').innerHTML=`<b>${T.hrv} ms</b> last night · normal ${Math.round(hrvM-hrvS)}–${Math.round(hrvM+hrvS)} ms · red dots = drinks logged`;
+$('#rhrRead').innerHTML=`<b>${T.rhr} bpm</b> today · 30-day average ${rhrM.toFixed(1)}`;
+const maxHR=190,zs=[['Zone 1',.5,.6,'--blue'],['Zone 2',.6,.7,'--green'],['Zone 3',.7,.8,'--lime'],['Zone 4',.8,.9,'--coral'],['Zone 5',.9,1.1,'--violet']].map(z=>[...z,day.filter(d=>d.hr>=z[1]*maxHR&&d.hr<z[2]*maxHR).length*5]);
+const zmax=Math.max(...zs.map(z=>z[4]));
+$('#zones').innerHTML=zs.map(z=>`<div class="bar"><span>${z[0]}</span><div class="t"><div style="width:${z[4]/zmax*100}%;background:var(${z[3]})"></div></div><b>${z[4]} min</b></div>`).join('');
+$('#zNote').textContent=`Zones from max HR ${maxHR} bpm (estimated). Zone 2 builds endurance; 4–5 build speed.`;
+const illV=[['Resting HR',T.rhr-rhrM,'bpm',1.5],['Breathing',T.resp-mean(base.map(d=>d.resp)),'/min',.6],['HRV',hrvM-T.hrv,'ms',8]];
+$('#ill').innerHTML=illV.map(v=>{const p=clamp(v[1]/v[3],0,1);return `<div class="bar"><span>${v[0]}</span><div class="t"><div style="width:${Math.max(4,p*100)}%;background:var(${p>.7?'--coral':'--green'})"></div></div><b>${p>.7?'High':'Normal'}</b></div>`}).join('')+`<div class="readout" style="margin-top:6px"><b>All clear</b> · no warning signs</div>`;
+
+/* ---- move ---- */
+const goal=10000;$('#stepRead').innerHTML=`<b>${Math.round(mean(days.slice(-14).map(d=>d.steps))).toLocaleString()}</b> daily average · goal met ${days.slice(-14).filter(d=>d.steps>=goal).length} of 14 days`;
+chart($('#stepFig'),(W,H)=>{const d14=days.slice(-14),L=36,B=22,hi=20000,bw=(W-L)/14,y=v=>8+(H-8-B)*(1-v/hi);let o=`<line x1="${L}" x2="${W}" y1="${y(goal)}" y2="${y(goal)}" stroke="${css('--ink')}" stroke-dasharray="4 4"/><text x="${L-6}" y="${y(goal)+4}" text-anchor="end">10k</text><text x="${L-6}" y="${y(20000)+10}" text-anchor="end">20k</text>`;
+  o+=d14.map((d,i)=>`<rect x="${L+i*bw+bw*.18}" y="${y(d.steps)}" width="${bw*.64}" height="${y(0)-y(d.steps)}" rx="${Math.min(5,bw*.25)}" fill="${css(d.steps>=goal?'--green':'--line')}"/>`+(W>=520||i%2==0?`<text x="${L+i*bw+bw/2}" y="${H-4}" text-anchor="middle">${dayName(d.d)}</text>`:'')).join('');return o});
+$('#loadKv').innerHTML=[['7-day load',Math.round(acute*7)],['4-week base',Math.round(chronic*7)],['Ratio',acwr.toFixed(2)]].map(k=>`<div>${k[0]}<b>${k[1]}</b></div>`).join('');
+chart($('#loadFig'),(W,H)=>{const lo=.5,hi=1.8,x=v=>12+(W-24)*(v-lo)/(hi-lo),y=H/2;let o=`<rect x="${x(lo)}" y="${y-8}" width="${x(.8)-x(lo)}" height="16" rx="8" fill="${css('--blue')}" opacity=".35"/><rect x="${x(.8)}" y="${y-8}" width="${x(1.3)-x(.8)}" height="16" fill="${css('--green')}" opacity=".6"/><rect x="${x(1.3)}" y="${y-8}" width="${x(hi)-x(1.3)}" height="16" rx="8" fill="${css('--coral')}" opacity=".5"/>`;
+  [['Detraining',.65],['Building',1.05],['Overreaching',1.55]].forEach(t=>o+=`<text x="${x(t[1])}" y="${y+32}" text-anchor="middle">${t[0]}</text>`);
+  const v=clamp(acwr,lo,hi);o+=`<path d="M${x(v)} ${y-12} l-8 -12 h16z" fill="${css('--ink')}"/><text x="${x(v)}" y="${y-30}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${acwr.toFixed(2)}</text>`;return o});
+$('#fitKv').innerHTML=[['VO₂ max (est.)','47 ml/kg/min'],['Fitness age','29'],['Recovery HR drop','31 bpm/min'],['Calories today','2,640 kcal'],['Intensity min (week)','186 / 150'],['Floors climbed','12']].map(k=>`<div>${k[0]}<b>${k[1]}</b></div>`).join('');
+
+/* ---- log ---- */
+let st={mood:4,tags:['Coffee after 2pm'],water:1250};
+try{const s=JSON.parse(localStorage.getItem('cirqa')||'null');if(s)st=s}catch(e){}
+const save=()=>{try{localStorage.setItem('cirqa',JSON.stringify(st))}catch(e){}};
+const TAGS=['Alcohol','Coffee after 2pm','Late meal','Screens in bed','Meditation','Sauna','Travel','Sick','Period','Hard workout'];
+function renderLog(){
+  $('#moods').innerHTML=['😞','🙁','😐','🙂','😄'].map((m,i)=>`<button data-m="${i+1}" aria-label="Mood ${i+1}" aria-pressed="${st.mood===i+1}">${i+1}</button>`).join('');
+  $('#tags').innerHTML=TAGS.map(t=>`<button class="tag" aria-pressed="${st.tags.includes(t)}">${esc(t)}</button>`).join('');
+  $('#water').textContent=st.water.toLocaleString()+' ml';
+}
+$('#moods').onclick=e=>{const b=e.target.closest('button');if(b){st.mood=+b.dataset.m;save();renderLog()}};
+$('#tags').onclick=e=>{const b=e.target.closest('.tag');if(!b)return;const t=b.textContent;st.tags=st.tags.includes(t)?st.tags.filter(x=>x!==t):[...st.tags,t];save();renderLog()};
+$('#wPlus').onclick=()=>{st.water+=250;save();renderLog()};$('#wMinus').onclick=()=>{st.water=Math.max(0,st.water-250);save();renderLog()};
+renderLog();
+const eff=(k,f,u)=>{const a=base.filter(d=>d[k]),b=base.filter(d=>!d[k]);return a.length?mean(a.map(f))-mean(b.map(f)):0};
+const corr=[
+ ['Alcohol',eff('alc',d=>d.hrv),'ms HRV',eff('alc',d=>d.score),'sleep score',alcN.length],
+ ['Coffee after 2pm',eff('caf',d=>d.hrv),'ms HRV',eff('caf',d=>d.deep*d.dur*60),'min deep sleep',base.filter(d=>d.caf).length],
+ ['Late night',eff('late',d=>d.hrv),'ms HRV',eff('late',d=>d.dur*60),'min sleep',base.filter(d=>d.late).length],
+ ['Workout day',eff('wk',d=>d.deep*d.dur*60),'min deep sleep',eff('wk',d=>d.mood),'mood',base.filter(d=>d.wk).length],
+];
+const sg=v=>(v>0?'+':'')+(Math.abs(v)<10?v.toFixed(1):Math.round(v));
+$('#corr').innerHTML=corr.map(c=>`<div class="in"><span style="background:var(${c[1]<0?'--coral':'--green'})"></span><div><h3>${esc(c[0])} <small style="color:var(--mut);font-weight:500">· ${c[5]} days</small></h3><p><b class="${c[1]<0?'dn':'up'}">${sg(c[1])} ${c[2]}</b> · <b class="${c[3]<0?'dn':'up'}">${sg(c[3])} ${c[4]}</b></p></div></div>`).join('');
+
+/* ---- catalog of everything ---- */
+const CAT=[
+ ['Heart (optical sensor)',[['Heart rate, 24/7','p1','Every second during workouts, every few seconds otherwise'],['Resting heart rate','p2','Lowest stable value of the day'],['Heart rate variability (HRV)','p2','Overnight average, the best single recovery signal'],['HR zones & time in zone','p3','Personal zones from your real max HR'],['Recovery heart rate','p3','How fast HR falls after effort; a fitness marker'],['Cardiac drift','p3','HR creep at steady effort, a sign of fatigue or heat'],['High / low HR alerts','p2','Unusual readings while resting']]],
+ ['Recovery & stress',[['Stress score (0–100)','p2','From HRV, every few minutes'],['Body Battery','p2','Energy reserve, charges in sleep, drains with stress'],['Readiness score','p3','HRV + resting HR + sleep + load in one number'],['Illness early warning','p3','RHR, breathing and HRV moving together'],['Stress patterns by hour & weekday','p3','Find your recurring stress windows'],['Breathing rate','p2','Day and overnight breaths per minute']]],
+ ['Sleep',[['Sleep stages','p2','Deep, light, REM, awake'],['Sleep score & breakdown','p2','Duration, depth, restfulness'],['Sleep debt','p3','Running deficit vs your need'],['Bedtime consistency','p3','Spread of sleep and wake times'],['Chronotype','p3','Morning or evening type, from your natural timing'],['Overnight blood oxygen (SpO₂)','p1','Pulse ox sensor; dips can flag breathing issues']]],
+ ['Movement (accelerometer)',[['Steps, distance, floors','p1','Floors need the barometer, if your band has one'],['Active & total calories','p2','From HR plus movement'],['Intensity minutes','p2','Moderate counts 1×, vigorous 2×'],['Sedentary streaks','p3','Longest time sitting; move reminders'],['Auto-detected activities','p2','Walking, running, cycling, swimming'],['Rep counting (strength)','p2','Where supported']]],
+ ['Fitness & training',[['VO₂ max estimate','p2','Aerobic fitness, from HR vs pace'],['Fitness age','p2','From VO₂ max, RHR and activity'],['Training load & balance','p3','Acute vs chronic load, injury-risk zone'],['Personal records & streaks','p3','Best weeks, longest streaks'],['Weekly report','p3','What improved, what slipped']]],
+ ['Your logs & connections',[['Mood & energy','p4','One tap a day'],['Habits & tags','p4','Alcohol, caffeine, meals, screens, meditation'],['Water & food','p4','Hydration, calories in vs out'],['Menstrual cycle','p4','Cycle phase vs HRV, temperature and sleep'],['What affects you','p3','Each tag compared with your HRV and sleep'],['AI coach','p3','Ask questions about your own data in plain words']]],
+];
+$('#cat').innerHTML=CAT.map(g=>`<div class="card"><h2>${esc(g[0])}</h2><ul>${g[1].map(i=>`<li>${esc(i[0])}<span class="pill ${i[1]}">${({p1:'Sensor',p2:'Garmin',p3:'New',p4:'You'})[i[1]]}</span><small>${esc(i[2])}</small></li>`).join('')}</ul></div>`).join('');
+
+/* ---- tabs ---- */
+const TABS=[['today','Today','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],['sleep','Sleep','<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>'],['heart','Heart','<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'],['move','Move','<path d="M13 4a1.5 1.5 0 1 0 0 .1M9 21l2-6 3 3v3M7 12l3-3 3 1 2 3h3M11 15l-1-4"/>'],['log','Log','<path d="M12 5v14M5 12h14"/>'],['all','Metrics','<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>']];
+$('#tabs').innerHTML=TABS.map(t=>`<button data-v="${t[0]}"><svg viewBox="0 0 24 24">${t[2]}</svg>${t[1]}</button>`).join('');
+const titles={today:'Today',sleep:'Sleep',heart:'Heart',move:'Movement',log:'Daily log',all:'Everything we track'};
+function go(v){if(!titles[v])v='today';document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.v!==v);document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));$('#ttl').textContent=titles[v];if(location.hash.slice(1)!==v)history.replaceState(null,'','#'+v);window.scrollTo(0,0);requestAnimationFrame(()=>charts.forEach(f=>f()))}
+$('#tabs').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.v)};
+addEventListener('hashchange',()=>go(location.hash.slice(1)));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{dial();charts.forEach(f=>f())});
+new MutationObserver(()=>{dial();charts.forEach(f=>f())}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+dial();go(location.hash.slice(1)||'today');
+}
+</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
+</body>
+</html>
